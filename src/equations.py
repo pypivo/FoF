@@ -1,6 +1,7 @@
 import numpy as np
 from numba import jit
 
+from bmr import calculate_bmr
 from coefficient_controller import update_coefficients
 import default_my as d
 
@@ -125,10 +126,21 @@ class EquationsController:
         # BMR
         e_KB_plus = 0.005*d.e_sigma*Heviside(T_a_t-180.0)
         J_KB_plus = e_KB_plus*d.inv_beta_KB_ef*Heviside(T_a_t-180.0)
-        J_Glu_minus = d.k_BMR_Glu_ef*Glu_ef
-        J_AA_minus = d.k_BMR_AA_ef*AA_ef
+        # J_Glu_minus = d.k_BMR_Glu_ef*Glu_ef
+        # J_AA_minus = d.k_BMR_AA_ef*AA_ef
         J_FFA_minus = d.K_BMR_FFF_ef*FFA_ef
-        J_KB_minus = d.K_BMR_KB_ef*KB_ef
+        # J_KB_minus = d.K_BMR_KB_ef*KB_ef
+
+        # J_Glu_minus = d.base_BMR_Glu_ef*Glu_ef
+        # J_AA_minus = d.base_BMR_AA_ef*AA_ef
+        # J_KB_minus = d.base_BMR_KB_ef*KB_ef
+
+        J_Glu_minus = d.base_BMR_Glu_ef
+        J_AA_minus = d.base_BMR_AA_ef
+        J_KB_minus = d.base_BMR_KB_ef
+        
+
+        bmr_AA_ef, bmr_Glu_ef, bmr_TG_pl = calculate_bmr(AA_ef, Glu_ef, TG_pl)
 
         alpha = d.alpha_base
         beta = d.beta_base
@@ -210,11 +222,11 @@ class EquationsController:
         H_28 = h_[28] * AA_h
         H_29 = h_[29] * AA_h
 
-        J_0 = j_[0] * TG_pl
-        J_1 = j_[1] * Glu_ef
-        J_2 = j_[2] * KB_ef
-        J_3 = j_[3] * FFA_ef
-        J_4 = j_[4] * AA_ef
+        J_0 = j_[0] * TG_pl * (1 + bmr_TG_pl)
+        J_1 = j_[1] * Glu_ef * (J_Glu_minus + bmr_Glu_ef)
+        J_2 = j_[2] * KB_ef * (J_KB_minus)
+        J_3 = j_[3] * FFA_ef * (J_FFA_minus)
+        J_4 = j_[4] * AA_ef * (J_AA_minus + bmr_AA_ef)
         
         # вычисление вектора F(t) в точке t
         # депо
@@ -261,11 +273,11 @@ class EquationsController:
         right_Lac_m=  2.0*M_2 - H_5
         right_Muscle_m = M_20 - M_21
         
-        right_KB_ef =  - J_KB_minus + J_KB_plus - M_3 - J_2 + H_6
-        right_Glu_ef = J_carb_flow + H_2 - J_Glu_minus - M_1 - A_4 - H_3 - J_1
-        right_AA_ef =  J_prot_flow + M_6  - J_AA_minus - M_5 - A_1 - H_1 - J_4
+        right_KB_ef =  + J_KB_plus - M_3 - J_2 + H_6
+        right_Glu_ef = J_carb_flow + H_2 - M_1 - A_4 - H_3 - J_1
+        right_AA_ef =  J_prot_flow + M_6 - M_5 - A_1 - H_1 - J_4
         right_TG_pl =  J_fat_flow + H_9 - J_0
-        right_FFA_ef= (1.0/2.0)*J_0 + (1.0/2.0)*A_3  - J_FFA_minus - M_4 - A_2 - H_8 - J_3  
+        right_FFA_ef= (1.0/2.0)*J_0 + (1.0/2.0)*A_3  - M_4 - A_2 - H_8 - J_3  
         right_Glycerol_ef = (1.0/2.0)*J_0 + (1.0/2.0)*A_3 - H_4
         right_Urea_ef=    J_4 + (1.0/2.0)*A_17 + (1.0/2.0)*A_18 + (1.0/2.0)*A_19 + (1.0/2.0)*M_17 + (1.0/2.0)*M_18 + (1.0/2.0)*M_19 + (1.0/2.0)*H_27 + (1.0/2.0)*H_28 + (1.0/2.0)*H_29
         right_Cholesterol_pl= H_7

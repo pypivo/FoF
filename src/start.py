@@ -44,10 +44,10 @@ class CalculationModel:
 
         index_by_name, name_by_index, start_point = get_start_point_names_mapping(self.start_point_dict)
 
-        start_point[index_by_name['AA_ef']] = 0.0
-        start_point[index_by_name['FFA_ef']] = 0.0
-        start_point[index_by_name['KB_ef']] = 0.0
-        start_point[index_by_name['Glu_ef']] = 0.0
+        start_point[index_by_name['AA_ef']] = 10.0
+        start_point[index_by_name['FFA_ef']] = 10.0
+        start_point[index_by_name['KB_ef']] = 1.0
+        start_point[index_by_name['Glu_ef']] = 10.0
         start_point[index_by_name['INS']] = 0.0
 
         J_flow_carb_vs = J_flow_carb_func.values

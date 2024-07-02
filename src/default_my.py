@@ -48,6 +48,7 @@ N = int((t_end-t_0)/tau_grid)+1
 time_grid = np.linspace(start=t_0, stop=t_end, num=N)
 
 HeartRate = 80.0
+
 k_BMR_Glu_ef = 10**(-2)
 k_BMR_AA_ef = 10**(-2)
 K_BMR_FFF_ef = 10**(-2)
@@ -66,9 +67,9 @@ MASS_OF_HUMAN = 70.0
 E_day = 1500.0 # [kcal/day]
 e_sigma = E_day/(24.0*60.0) #[kcal/min]
 
-beta_KB_ef = 437/1000.0 # [kcal/mmol]
 beta_Glu_ef = 757.0/1000.0 # [kcal/mmol]
 beta_AA_ef = 462/1000.0 # [kcal/mmol]
+beta_KB_ef = 437/1000.0 # [kcal/mmol]
 beta_TG_pl = 8 # [kcal/mmol]
 
 beta_FFA_ef = 2415.6/1000.0 # [kcal/mmol]
@@ -76,6 +77,15 @@ beta_Muscle = 369.5/1000.0  # [kcal/mmol]
 beta_GG_m = 699.0/1000.0 # [kcal/mmol]
 beta_TG_a = 7246.8/1000.0 # [kcal/mmol]
 beta_GG_h = 699.0/1000.0 # [kcal/mmol]
+
+
+base_BMR_Glu_ef_rate = 2 * 10**(-2)  # 20% из 0.1 [kcal/0.1min (6 sec)]
+base_BMR_AA_ef_rate = 10**(-2)
+base_BMR_KB_ef_rate = 0.35 * 10**(-2) 
+
+base_BMR_Glu_ef = base_BMR_Glu_ef_rate * 1/beta_Glu_ef
+base_BMR_AA_ef = base_BMR_AA_ef_rate * 1/beta_AA_ef
+base_BMR_KB_ef = base_BMR_KB_ef_rate * 1/beta_KB_ef
 
 Glu_ef_start= E_day/beta_Glu_ef/4
 AA_ef_start = E_day/beta_AA_ef/4
@@ -140,15 +150,15 @@ start_point_dict = {
 
     # Hormones
     "INS": 0.0,
-    "GLN": 10.0,
-    "CAM": 10.0,
+    "GLN": 0.0,
+    "CAM": 0.0,
 }
 
 SUBSTANCE_LIST = tuple(name for name in start_point_dict.keys())
 
 velocity_depot = 10.0
 power_of_coeff = 10**(-5)
-j_base = 10**(-2)
+j_base = 10**(-1)
 
 def make_default_coefficients() -> dict:
 
