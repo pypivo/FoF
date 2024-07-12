@@ -35,7 +35,7 @@ def calculate_hormonal_index(
     GLN = substances_concentration[GLN_i]
     CAM = substances_concentration[CAM_i]
     if GLN == 0.0:
-        return 0.0
+        return 1.0
 
     I = INS/(GLN)
     return I
@@ -152,7 +152,7 @@ def update_insulin_coefficients(
     m_[9] = m_base[9] * insulin_regulation
     m_[11] = m_base[11] * insulin_regulation
 
-    a_[2] = a_base[2] * insulin_regulation
+    # a_[2] = a_base[2] * insulin_regulation
     a_[4] = a_base[4] * insulin_regulation
     a_[5] = a_base[5] * insulin_regulation
     a_[7] = a_base[7] * insulin_regulation
@@ -172,7 +172,7 @@ def update_insulin_coefficients(
     h_[24] = h_base[24] * insulin_regulation
     h_[26] = h_base[26] * insulin_regulation
 
-    j_[0] = j_base[0] * insulin_regulation
+    # j_[0] = j_base[0] * insulin_regulation
 
 
 @jit(nopython = True)            
@@ -202,8 +202,8 @@ def update_glucagon_coefficient(
     a_[9] = a_base[9] * glucagon_regulation
     a_[11] = a_base[11] * glucagon_regulation
 
-    h_[2 ]=  h_base[2] * glucagon_regulation
-    h_[6 ]=  h_base[6] * glucagon_regulation
+    h_[2]=  h_base[2] * glucagon_regulation
+    h_[6]=  h_base[6] * glucagon_regulation
     h_[11] = h_base[11] * glucagon_regulation 
     h_[13] = h_base[13] * glucagon_regulation 
     h_[18] = h_base[18] * glucagon_regulation 

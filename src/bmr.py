@@ -12,19 +12,23 @@ def calculate_bmr(AA_ef, Glu_ef, TG_pl):
     bmr_Glu_ef = 0.0
     bmr_TG_pl = 0.0
 
-    if AA_ef  - AA_ef* need_to_fill_bmr * 1/d.beta_AA_ef  > 10.0:
+    if AA_ef  - AA_ef* need_to_fill_bmr * 1/d.beta_AA_ef > 10.0:
         bmr_AA_ef = need_to_fill_bmr * 1/d.beta_AA_ef
         return bmr_AA_ef, bmr_Glu_ef, bmr_TG_pl
+    elif AA_ef < 10.0:
+        bmr_AA_ef = 0.0
     else:
         coeff = (AA_ef - 10.0) / (AA_ef * 1/d.beta_AA_ef)
         need_to_fill_bmr -= coeff
         bmr_AA_ef = coeff
 
-    if Glu_ef  - Glu_ef* need_to_fill_bmr * 1/d.beta_Glu_ef  > 10.0:
+    if Glu_ef  - Glu_ef* need_to_fill_bmr * 1/d.beta_Glu_ef  > 5:
         bmr_Glu_ef = need_to_fill_bmr * 1/d.beta_Glu_ef
         return bmr_AA_ef, bmr_Glu_ef, bmr_TG_pl
+    if Glu_ef < 5:
+        bmr_Glu_ef = 0.0
     else:
-        coeff = (Glu_ef - 10.0) / (Glu_ef * 1/d.beta_Glu_ef)
+        coeff = (Glu_ef - 5) / (Glu_ef * 1/d.beta_Glu_ef)
         need_to_fill_bmr -= coeff
         bmr_Glu_ef  = coeff
 

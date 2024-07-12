@@ -156,22 +156,24 @@ start_point_dict = {
 
 SUBSTANCE_LIST = tuple(name for name in start_point_dict.keys())
 
-velocity_depot = 10.0
-power_of_coeff = 10**(-5)
-j_base = 10**(-1)
+velocity_depot = 1.0
+power_of_coeff = 1.0
+j_base = 5 * 10**(-1)
 
 def make_default_coefficients() -> dict:
 
     coefficients = {}
     for name in model.match_coefficient_name_and_input_substances.keys():
-        if name in ['m_1', 'm_3', 'm_4']:
-            coefficients[name] = 1.0
-        elif name in model.DEPO_COEFFICIENTS:
+        # if name in ['m_1', 'm_3', 'm_4']:
+        #     coefficients[name] = 1.0
+        if name in model.DEPO_COEFFICIENTS:
             coefficients[name] = velocity_depot
-        elif "j" in name:
+        if "j" in name:
             coefficients[name] = j_base
         else:
             coefficients[name] = power_of_coeff
-    coefficients['m_21'] = 10**(-2)
+    coefficients['h_2'] = 10**(-1)
+    coefficients['j_1'] = 2  * 10**(-1)
+    coefficients['a_3'] = 10**(-7)
 
     return coefficients 

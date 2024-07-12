@@ -197,7 +197,7 @@ class EquationsController:
         H_3 = h_[3] * Glu_ef
         H_4 = h_[4] * Glycerol_ef
         H_5 = h_[5] * Lac_m
-        H_6 = h_[6] * Ac_CoA_h
+        H_6 = h_[6] * Ac_CoA_h * 0.0
         H_7 = h_[7] * MVA_h
         H_8 = h_[8] * FFA_ef
         H_9 = h_[9] * TG_h
@@ -222,11 +222,24 @@ class EquationsController:
         H_28 = h_[28] * AA_h
         H_29 = h_[29] * AA_h
 
-        J_0 = j_[0] * TG_pl * (1 + bmr_TG_pl)
-        J_1 = j_[1] * Glu_ef * (J_Glu_minus + bmr_Glu_ef)
-        J_2 = j_[2] * KB_ef * (J_KB_minus)
-        J_3 = j_[3] * FFA_ef * (J_FFA_minus)
-        J_4 = j_[4] * AA_ef * (J_AA_minus + bmr_AA_ef)
+        v = 0.001
+        # J_0 = j_[0] * TG_pl * (bmr_TG_pl + 1) * v * 10
+        # J_1 = j_[1] * Glu_ef * (J_Glu_minus + bmr_Glu_ef) * v
+        # J_2 = j_[2] * KB_ef * (J_KB_minus) * v
+        # J_3 = j_[3] * FFA_ef * (J_FFA_minus) * v
+        # J_4 = j_[4] * AA_ef * (J_AA_minus + bmr_AA_ef) * v
+
+        J_0 = j_[0]  * (bmr_TG_pl + 1) * v
+        J_1 = j_[1]  * (J_Glu_minus + bmr_Glu_ef) * v
+        J_2 = j_[2]  * (J_KB_minus) * v
+        J_3 = j_[3]  * (J_FFA_minus) * v
+        J_4 = j_[4]  * (J_AA_minus + bmr_AA_ef) * v 
+
+        # J_0 = j_[0]  * (0.001)
+        # J_1 = j_[1]  * (0.001)
+        # J_2 = j_[2]  * (0.001)
+        # J_3 = j_[3]  * (0.001)
+        # J_4 = j_[4]  * (0.001)
         
         # вычисление вектора F(t) в точке t
         # депо
@@ -281,9 +294,16 @@ class EquationsController:
         right_Glycerol_ef = (1.0/2.0)*J_0 + (1.0/2.0)*A_3 - H_4
         right_Urea_ef=    J_4 + (1.0/2.0)*A_17 + (1.0/2.0)*A_18 + (1.0/2.0)*A_19 + (1.0/2.0)*M_17 + (1.0/2.0)*M_18 + (1.0/2.0)*M_19 + (1.0/2.0)*H_27 + (1.0/2.0)*H_28 + (1.0/2.0)*H_29
         right_Cholesterol_pl= H_7
+        
+        b = 0.0
+        if Glu_ef > 6.0:
+            b = 10.0
+        right_INS =  - INS * CL_INS  + 1.0 * J_carb_flow  +1.0 * J_fat_flow + 1.0 * J_prot_flow + b # +1.0 * Glu_ef * Heviside((Glu_ef-5.0)/14.0)
 
-        right_INS =  - INS * CL_INS  + 1.0 * J_carb_flow  +1.0 * J_fat_flow + 1.0 * J_prot_flow  # +1.0 * Glu_ef * Heviside((Glu_ef-5.0)/14.0)
-        right_GLN = - CL_GLN * GLN  + d.lambda_ * (1.0/np.maximum(Glu_ef/14.0, 0.1)) # не химическая кинетика
+        a = 0.0
+        if Glu_ef < 5.0:
+            a = 3.0
+        right_GLN = - CL_GLN * GLN  + a # d.lambda_ * (1.0/np.maximum(Glu_ef/14.0, 0.1)) # не химическая кинетика
         right_CAM = d.sigma * HeartRate - CL_CAM * CAM
 
         buffer[0] = right_Muscle_m
