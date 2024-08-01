@@ -1,7 +1,6 @@
-import numpy as np
-from numba import jit, njit
+from numba import njit
 
-import default_my as d
+import default as d
 
 
 @njit

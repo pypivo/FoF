@@ -1,19 +1,12 @@
-from copy import copy
-from typing import Dict
-
 import numpy as np
-import numpy.ma as ma
-from numba import jit, prange, types, typed
-from scipy.integrate import odeint, Radau
-from scipy.integrate import ode,solve_ivp
+from scipy.integrate import ode
 
 from input import *
 from Plotting.myplt import *
 from myo_supportfs import *
 from coefficient_controller import CoefficientsController
 from equations import EquationsController
-import info_about_model as model
-from default_my import *
+from default import *
 
 
 def make_equations_and_coefficient_controllers():
@@ -36,19 +29,16 @@ class CalculationModel:
 
     def update_base_coefficient_value(self, coefficients: dict[str, float]):
         """
-        метод для изменения значения коэффициента(из интерфейса, при прогоне коэфов)
+        метод для изменения значения коэффициента
         """
         self.coefficient_controller.update_base_coefficient_value(coefficients=coefficients)
 
     def calculate(self):
+        """
+        основная функция, которая запускает всве процессы по расчету уравнений, коэффициентов и построению графиков
+        """
 
         index_by_name, name_by_index, start_point = get_start_point_names_mapping(self.start_point_dict)
-
-        start_point[index_by_name['AA_ef']] = 10.0
-        start_point[index_by_name['FFA_ef']] = 10.0
-        start_point[index_by_name['KB_ef']] = 1.0
-        start_point[index_by_name['Glu_ef']] = 5.0
-        start_point[index_by_name['INS']] = 0.0
 
         J_flow_carb_vs = J_flow_carb_func.values
         J_flow_prot_vs = J_flow_prot_func.values
@@ -58,23 +48,13 @@ class CalculationModel:
         INS_on_grid = np.zeros(shape=(len(time_grid), ),dtype=np.float32)
         INS_AUC_w_on_grid = np.zeros(shape=(len(time_grid), ),dtype=np.float32)
         INS_on_grid[0] = start_point[index_by_name['INS']]
-        T_a_on_grid = np.zeros(shape=(len(time_grid), ),dtype=np.float32)
         INS_AUC_w_on_grid[0] = 0.0  
+        T_a_on_grid = np.zeros(shape=(len(time_grid), ),dtype=np.float32)
         T_a_on_grid[0]= 0.0
         last_seen_time = np.zeros(shape=(1,),dtype=np.float32)
         last_seen_time[0] = t_0
         last_time_pos = np.zeros(shape=(1,),dtype=np.intc)
         last_time_pos[0] = 0
-
-        e_KB_plus_arr = np.zeros(shape=(len(time_grid),),dtype=np.float32)
-        e_AA_minus_arr = np.zeros(shape=(len(time_grid),),dtype=np.float32)
-        e_Glu_minus_arr = np.zeros(shape=(len(time_grid),),dtype=np.float32)
-        e_FFA_minus_arr = np.zeros(shape=(len(time_grid),),dtype=np.float32)
-        e_KB_minus_arr = np.zeros(shape=(len(time_grid),),dtype=np.float32)
-        e_TG_a_minus_arr = np.zeros(shape=(len(time_grid),),dtype=np.float32)
-        e_GG_h_minus_arr = np.zeros(shape=(len(time_grid),),dtype=np.float32)
-        e_GG_m_minus_arr = np.zeros(shape=(len(time_grid),),dtype=np.float32)
-        e_Muscle_m_minus_arr = np.zeros(shape=(len(time_grid),),dtype=np.float32)
 
 
         def F_wrapped(t, y):

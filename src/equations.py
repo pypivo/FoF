@@ -3,7 +3,7 @@ from numba import jit
 
 from bmr import calculate_bmr
 from coefficient_controller import update_coefficients
-import default_my as d
+import default as d
 
 
 @jit(nopython=True)
@@ -142,9 +142,6 @@ class EquationsController:
 
         bmr_AA_ef, bmr_Glu_ef, bmr_TG_pl = calculate_bmr(AA_ef, Glu_ef, TG_pl)
 
-        alpha = d.alpha_base
-        beta = d.beta_base
-        gamma = d.gamma_base
         CL_INS = d.CL_INS_base
         CL_GLN = d.CL_GLN_base
         CL_CAM = d.CL_CAM_base
@@ -234,16 +231,9 @@ class EquationsController:
         J_2 = j_[2]  * (J_KB_minus) * v
         J_3 = j_[3]  * (J_FFA_minus) * v
         J_4 = j_[4]  * (J_AA_minus + bmr_AA_ef) * v 
-
-        # J_0 = j_[0]  * (0.001)
-        # J_1 = j_[1]  * (0.001)
-        # J_2 = j_[2]  * (0.001)
-        # J_3 = j_[3]  * (0.001)
-        # J_4 = j_[4]  * (0.001)
         
         # вычисление вектора F(t) в точке t
-        # депо
-
+        # Adipocyte
         right_TG_a =2.0*A_7 - A_3
         right_AA_a =A_1 - A_17 - A_18 - A_19 
         right_G6_a =A_4 - A_5 - A_6
@@ -255,6 +245,7 @@ class EquationsController:
         right_OAA_a =A_11 + (1.0/2.0)*A_14 + A_15 +(1.0/2.0)*A_17 - A_9 - A_12 - A_16 
         right_NADPH_a =(1.0/2.0)*A_6 + (1.0/2.0)*A_12 - A_13
 
+        # Hepatocyte
         right_Pyr_h =    H_5 + H_15 + (1.0/2.0)*H_24 + (1.0/2.0)*H_29 - H_16 - H_25
         right_Ac_CoA_h = H_16 + H_18 + (1.0/2.0)*H_26 + (1.0/2.0)*H_27 - H_17 - H_19 - H_6 - H_21
         right_FA_CoA_h = H_8 + 2.0*H_19 - H_18 - H_20
@@ -267,7 +258,8 @@ class EquationsController:
         right_G6_h = H_3 + H_11 + H_13 - H_2 - H_10 - H_12 - H_14
         right_G3_h = H_4 + H_12 + (1.0/2.0)*H_14 + H_23 - H_13 - H_15 - H_20
         right_TG_h = 2.0*H_20 - H_9
-        
+
+        # Myocyte      
         right_GG_m = M_7 - M_8
         right_G6_m = M_1 + M_8 - M_7 - M_9
         right_G3_m = M_9 - M_10
@@ -286,6 +278,7 @@ class EquationsController:
         right_Lac_m=  2.0*M_2 - H_5
         right_Muscle_m = M_20 - M_21
         
+        # Fluid
         right_KB_ef =  + J_KB_plus - M_3 - J_2 + H_6
         right_Glu_ef = J_carb_flow + H_2 - M_1 - A_4 - H_3 - J_1
         right_AA_ef =  J_prot_flow + M_6 - M_5 - A_1 - H_1 - J_4
@@ -299,7 +292,6 @@ class EquationsController:
         if Glu_ef > 6.0:
             b = 10.0
         right_INS =  - INS * CL_INS  + 1.0 * J_carb_flow  +1.0 * J_fat_flow + 1.0 * J_prot_flow + b # +1.0 * Glu_ef * Heviside((Glu_ef-5.0)/14.0)
-
         a = 0.0
         if Glu_ef < 5.0:
             a = 3.0

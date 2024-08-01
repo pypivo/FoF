@@ -7,24 +7,11 @@ from copy import deepcopy
 from tqdm import tqdm
 import plotly
 import plotly.graph_objects as go
-# def F_carb(x): # [g]
-#     return np.exp(-1.0*x)*10 * np.abs(np.cos(2*x))
-#
-# def F_fat(x): # [g]
-#     return np.exp(-2.0*x)*10* np.abs(np.cos(2*x))
-#
-# def F_prot(x): # [g]
-#     return np.exp(-3.0*x)*10* np.abs(np.cos(2*x))
-#
-#
-#
-# def makeFcarb():
-#
+
 
 def read_diet(path_to_exel):
     diet = pd.read_excel(path_to_exel)
     print([el for el in diet])
-    # diet = pd.read_excel(r"C:\Users\User\PycharmProjects\gr_lab_2023\legacy_code\diet_Mikhail.xlsx")
 
     # Начало приёма пиши
     meal_beginning = np.array(diet.MealTime.dropna())

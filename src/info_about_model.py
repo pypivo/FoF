@@ -1,82 +1,7 @@
 """
-вся информация о модели для её корректной работы
+информация о модели для её корректной работы
 """
-import numpy as np
-from numba import jit, typed, types, njit
 
-
-INS_ACTIVATION = 15.0
-GLU_ACTIVATION = 156.0
-myocyte = {
-    "Muscle_m": 10.0,
-    "AA_m": 10.0,
-    "GG_m": 10.0,
-    "G6_m": 10.0,
-    "G3_m": 10.0,
-    "Pyr_m": 10.0,
-    "Cit_m": 10.0,
-    "OAA_m": 10.0,
-    "CO2_m": 10.0,
-    "H2O_m": 10.0,
-    "H_cyt_m": 10.0,
-    "H_mit_m": 10.0,
-    "Ac_CoA_m": 10.0,
-    "FA_CoA_m": 10.0,
-    "ATP_cyt_m": 10.0,
-    "ATP_mit_m": 10.0,
-}
-myocyte_shift = 0
-
-adipocyte = {
-    "TG_a": 10.0,
-    "AA_a": 10.0,
-    "G6_a": 10.0,
-    "G3_a": 10.0,
-    "Pyr_a": 10.0,
-    "Ac_CoA_a": 10.0,
-    "FA_CoA_a": 10.0,
-    "Cit_a": 10.0,
-    "OAA_a": 10.0,
-    "NADPH_a": 10.0, 
-}
-adipocyte_shift = len(myocyte)
-
-hepatocyte = {
-    "GG_h": 10.0, 
-    "G6_h": 10.0,
-    "G3_h": 10.0,
-    "TG_h": 10.0,
-    "Pyr_h": 10.0,
-    "MVA_h": 10.0,
-    "OAA_h": 10.0,
-    "Cit_h": 10.0,
-    "AA_h": 10.0,
-    "NADPH_h": 10.0,
-    "Ac_CoA_h": 10.0,
-    "FA_CoA_h": 10.0,   
-}
-hepatocyte_shift = adipocyte_shift + len(adipocyte)
-
-fluid = {
-    "Urea_ef": 10.0, 
-    "Glu_ef": 0,
-    "AA_ef": 0.0,
-    "FFA_ef": 0, 
-    "KB_ef": 0,
-    "Glycerol_ef": 10.0,
-    "Lac_m": 10.0,
-    "TG_pl": 10.0,
-    "Cholesterol_pl": 10.0,     
-}
-fluid_shift = hepatocyte_shift + len(hepatocyte)
-
-
-hormones = {
-    "INS": 0.0, 
-    "GLN": 0.0,
-    "CAM": 0.0, 
-}
-hormones_shift = fluid_shift + len(fluid)
 
 start_point_dict = {
     # Myocyte
@@ -142,16 +67,6 @@ start_point_dict = {
 INS_i = 47
 GLN_i = 48
 CAM_i = 49
-
-substances_name_by_ind = {}
-substances_ind_by_name = {}
-for i, name in enumerate(start_point_dict):
-    substances_name_by_ind[i] = name
-    substances_ind_by_name[name] = i
-
-jit_substances_name_by_ind = typed.Dict.empty(types.int64, types.unicode_type)
-for ind in substances_name_by_ind:
-    jit_substances_name_by_ind[ind] = substances_name_by_ind[ind]
 
 
 DEPO_COEFFICIENTS = [
@@ -293,28 +208,6 @@ match_coefficient_name_and_input_substances = {
     "j_4": ['AA_ef'],
 
 }
-change_of_input_substance = typed.Dict.empty(types.unicode_type, types.float64)
-for reaction in match_coefficient_name_and_input_substances:
-    change_of_input_substance[reaction] = 0.0
-
-coefficient_name_by_ind = {}
-coefficient_ind_by_name = {}
-for i, name in enumerate(match_coefficient_name_and_input_substances):
-    coefficient_name_by_ind[i] = name
-    coefficient_ind_by_name[name] = i
-
-jit_coefficient_name_by_ind = typed.Dict.empty(types.int64, types.unicode_type)
-for ind in coefficient_name_by_ind:
-    jit_coefficient_name_by_ind[ind] = coefficient_name_by_ind[ind]
-# print(jit_coefficient_name_by_ind)
-
-
-jit_match_coefficient_and_input_substances_ind = typed.Dict.empty(types.unicode_type, types.int64[:])
-for coeff in match_coefficient_name_and_input_substances:
-    arr = []
-    for substance in match_coefficient_name_and_input_substances[coeff]:
-        arr.append(substances_ind_by_name[substance])
-    jit_match_coefficient_and_input_substances_ind[coeff] = np.array(arr, dtype=np.int64)
 
 
 # выходящие вещества для процесса
@@ -399,14 +292,8 @@ match_coefficient_name_and_output_substances = {
     "j_4": [],
 
 }
-jit_match_coefficient_ind_and_output_substances = typed.Dict.empty(types.unicode_type, types.int64[:])
-for coeff in match_coefficient_name_and_output_substances:
-    arr = []
-    for substance in match_coefficient_name_and_output_substances[coeff]:
-        arr.append(substances_ind_by_name[substance])
-    jit_match_coefficient_ind_and_output_substances[coeff] = np.array(arr, dtype=np.int64)
 
-# показывает, в каких процессах учавствуют вещества
+# показывает, в каких процессах участвуют вещества
 match_substances_and_reactions = {
     'TG_a': ['a_7', 'a_3'],
     'AA_a': ['a_1', 'a_17', 'a_18', 'a_19'],
@@ -459,15 +346,3 @@ match_substances_and_reactions = {
     'CAM': [],
     'Muscle_m': ['m_20', 'm_21']
 }
-jit_match_substances_and_coeff_ind = typed.Dict.empty(types.unicode_type, types.int64[:])
-for substance in match_substances_and_reactions:
-    arr = []
-    for coeff in match_substances_and_reactions[substance]:
-        arr.append(coefficient_ind_by_name[coeff])
-    jit_match_substances_and_coeff_ind[substance] = np.array(arr, dtype=np.int64)
-
-myocyte_processes = np.zeros(shape=(21 + 1,), dtype=np.float64)
-adipocyte_processes = np.zeros(shape=(19 + 1,), dtype=np.float64)
-hepatocyte_processes = np.zeros(shape=(29 + 1,), dtype=np.float64)
-fluid_processes = np.zeros(shape=(4 + 1,), dtype=np.float64)
-calculated_substance = np.zeros(shape=(len(list(start_point_dict.keys())), ),dtype=np.float64)

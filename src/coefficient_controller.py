@@ -1,19 +1,14 @@
-from copy import copy
-import time
-
-
 import numpy as np
-import numpy.ma as ma
-from numba import jit, typed, types, njit
+from numba import jit, njit
 
 import info_about_model as model
 
 
 @jit(nopython=True)
 def hormones_regulation(I: float, reaction_type: str) -> float:
-
-    # Если гормональный индекс > 1, то идут только INS
-    # иначе только GLN
+    """
+    Если гормональный индекс > 1, то идут только INS, иначе только GLN
+    """
     if (
         I >= 1.0 and reaction_type == "INS" or
         I < 1.0 and reaction_type == "GLN"
@@ -31,6 +26,9 @@ def calculate_hormonal_index(
     GLN_i: int = model.GLN_i,
     CAM_i: int = model.CAM_i
 ):
+    """
+    Рассчет гормнального индекса
+    """
     INS = substances_concentration[INS_i]
     GLN = substances_concentration[GLN_i]
     CAM = substances_concentration[CAM_i]
@@ -52,6 +50,9 @@ class CoefficientsController:
         self.fluid_coefficients_base = self.set_processes_coefficients(model.fluid_coefficients_names[1:], is_j_process=True)
 
     def set_processes_coefficients(self, processes: list[str], is_j_process=False):
+        """
+        задание дефолтных коэффициентов
+        """
         processes_coefficients_base = [0.0]
         if is_j_process:
             processes_coefficients_base = []
@@ -62,7 +63,7 @@ class CoefficientsController:
     
     def update_base_coefficient_value(self, coefficients: dict[str, float]):
         """
-        метод для изменения значения коэффициента(из интерфейса, при прогоне коэфов)
+        метод для изменения значения коэффициента в интерфейсе
         """
         self.coefficients.update(coefficients)
 
@@ -82,7 +83,7 @@ def update_coefficients(
     fluid_coefficients_base,
 ) -> tuple[list[float]]:
     """
-    Расчет изменения входящего вещества в реакции: G6_h (h_1)-> Glu_ef
+    изменение коэффициентов в зависимости от гормонального индекса
     """
     m_ = np.array(myocyte_coefficients_base)
     a_ = np.array(adipocyte_coefficients_base)
@@ -92,8 +93,6 @@ def update_coefficients(
     hormonal_index = calculate_hormonal_index(substances_concentration=substances_concentration)
 
     update_insulin_coefficients(
-        substances_concentration=substances_concentration,
-
         m_base=myocyte_coefficients_base,
         a_base=adipocyte_coefficients_base,
         h_base=hepatocyte_coefficients_base,
@@ -108,8 +107,6 @@ def update_coefficients(
     )
 
     update_glucagon_coefficient(
-        substances_concentration=substances_concentration,
-
         m_base=myocyte_coefficients_base,
         a_base=adipocyte_coefficients_base,
         h_base=hepatocyte_coefficients_base,
@@ -128,8 +125,6 @@ def update_coefficients(
 
 @jit(nopython = True)            
 def update_insulin_coefficients(
-    substances_concentration: list[float],
-
     m_base: list[float],
     a_base: list[float],
     h_base: list[float],
@@ -177,8 +172,6 @@ def update_insulin_coefficients(
 
 @jit(nopython = True)            
 def update_glucagon_coefficient(
-    substances_concentration: list[float],
-
     m_base: list[float],
     a_base: list[float],
     h_base: list[float],
@@ -192,7 +185,7 @@ def update_glucagon_coefficient(
     hormonal_index: float,
 ):
     """
-    обновление глюкагеновых коэффициентов
+    обновление глюкагоновых коэффициентов
     """
     glucagon_regulation = hormones_regulation(hormonal_index, reaction_type="GLN")
 

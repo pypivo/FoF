@@ -1,12 +1,8 @@
-import copy
-import numpy as np
-from numba import jit, njit
-
-import info_about_model as model
-from coefficient_controller import CoefficientsController
-
 import os
+
+import numpy as np
 import torch
+
 from local_contributor_config import problem_folder
 
 J_flow_prot_func = torch.load(
@@ -139,10 +135,10 @@ start_point_dict = {
 
     # Fluid
     "Urea_ef": 10.0,
-    "Glu_ef": Glu_ef_start,
-    "AA_ef": AA_ef_start,
-    "FFA_ef": FFA_ef_start, 
-    "KB_ef": KB_ef_start,
+    "Glu_ef": 5,
+    "AA_ef": 5,
+    "FFA_ef": 5, 
+    "KB_ef": 5,
     "Glycerol_ef": 10.0,
     "Lac_m": 10.0,
     "TG_pl": 10.0,
@@ -154,26 +150,105 @@ start_point_dict = {
     "CAM": 0.0,
 }
 
-SUBSTANCE_LIST = tuple(name for name in start_point_dict.keys())
+default_coefficients = {
+    # Myocyte
+    "m_1": None,
+    "m_2": None,
+    "m_3": None,
+    "m_4": None,
+    "m_5": None,
+    "m_6": None,
+    "m_7": None,
+    "m_8": None,
+    "m_9": None,
+    "m_10": None,
+    "m_11": None,
+    "m_12": None,
+    "m_13": None,
+    "m_14": None,
+    "m_15": None,
+    "m_16": None,
+    "m_17": None,
+    "m_18": None,
+    "m_19": None,
+    "m_20": None,
+    "m_21": None,
 
-velocity_depot = 1.0
-power_of_coeff = 1.0
+    # Adipocyte
+    "a_1": None,
+    "a_2": None,
+    "a_3": 10**(-7),
+    "a_4": None,
+    "a_5": None,
+    "a_6": None,
+    "a_7": None,
+    "a_8": None,
+    "a_9": None,
+    "a_10": None,
+    "a_11": None,
+    "a_12": None,
+    "a_13": None,
+    "a_14": None,
+    "a_15": None,
+    "a_16": None,
+    "a_17": None,
+    "a_18": None,
+    "a_19": None,
+
+    # Hepatocyte
+    "h_1": None,
+    "h_2": 10**(-1),
+    "h_3": None,
+    "h_4": None,
+    "h_5": None,
+    "h_6": None,
+    "h_7": None,
+    "h_8": None,
+    "h_9": None,
+    "h_10": None,
+    "h_11": None,
+    "h_12": None,
+    "h_13": None,
+    "h_14": None,
+    "h_15": None,
+    "h_16": None,
+    "h_17": None,
+    "h_18": None,
+    "h_19": None,
+    "h_20": None,
+    "h_21": None,
+    "h_22": None,
+    "h_23": None,
+    "h_24": None,
+    "h_25": None,
+    "h_26": None,
+    "h_27": None,
+    "h_28": None,
+    "h_29": None,
+
+    # BMR
+    "j_0": None,
+    "j_1": 2  * 10**(-1),
+    "j_2": None,
+    "j_3": None,
+    "j_4": None,
+
+}
+
+value_of_coeff = 1.0
 j_base = 5 * 10**(-1)
 
 def make_default_coefficients() -> dict:
 
     coefficients = {}
-    for name in model.match_coefficient_name_and_input_substances.keys():
-        # if name in ['m_1', 'm_3', 'm_4']:
-        #     coefficients[name] = 1.0
-        if name in model.DEPO_COEFFICIENTS:
-            coefficients[name] = velocity_depot
+    for name in default_coefficients:
+        if default_coefficients[name] is not None:
+            coefficients[name] = default_coefficients[name]
+            continue
+
         if "j" in name:
             coefficients[name] = j_base
         else:
-            coefficients[name] = power_of_coeff
-    coefficients['h_2'] = 10**(-1)
-    coefficients['j_1'] = 2  * 10**(-1)
-    coefficients['a_3'] = 10**(-7)
+            coefficients[name] = value_of_coeff
 
     return coefficients 

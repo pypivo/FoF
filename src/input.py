@@ -148,9 +148,7 @@ class J_sum:
     
     def get_J(self,t:float)->float:
         s_ = 0.0
-        # arr_of_values = np.zeros(shape=(len(self.J_arr),))
         for i in range(len(self.J_arr)):
-            # arr_of_values[i] = self.J_arr[i].get_J(t) 
             s_ += self.J_arr[i].get_J(t)
         return s_
 
@@ -176,38 +174,8 @@ class J_sum:
                 active_chunks.append(i)
                 value_ = J_.get_J(t)
                 active_capacities.append(value_)
-                
-        # target_velocities = []
-        # d= len(active_chunks)
-        # bounds = np.zeros(shape=(d,2))
-        # for j in range(d):
-        #     ch_i = active_chunks[i]
-        #     J_ = self.J_arr[ch_i]
-        #     bounds[j][0] = 0.0
-        #     bounds[j][1] = J_.get_J()/self.tau
-        
-        # cons = [{"type": "eq", "fun": lambda x: np.sum(x) - (1.0/self.tau)*np.sum(active_capacities)-self.V_total}]
-        # options = {
-        #     'verbose':2
-        # }
-        # b = (1.0/self.tau)*np.sum(active_capacities)-self.V_total
-        # obj_func = lambda  
-        # results = minimize(fun=obj_func, x0=alpha_0,method='trust-constr', bounds=bounds,constraints=cons,options=options)
 
-        # for i in range(len(active_chunks)):
-        #     ch_i = active_chunks[i]
-        #     self.J_arr[ch_i].step(t, velocity=target_velocities[i])
         V_ = self.get_velocity(t)
-        # for i in range(len(active_capacities)):
-        #     cap_i = active_capacities[i]
-        #     if cap_i < self.V_total*self.tau/len(active_capacities):
-        #         V_= 0.0
-        #         break
-        # if np.sum(active_capacities)-self.V_total*self.tau < 0.0:
-            # print(active_chunks)
-            # print('t = {} не хватает массы Jsum = {} targetJ = {}'.format(t, np.sum(active_capacities), self.V_total*self.tau))
-            # print('')
-            # V_ = 0.0
         for i in range(len(active_chunks)):
             ch_i = active_chunks[i]
             J_ = self.J_arr[ch_i]
