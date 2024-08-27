@@ -11,7 +11,7 @@ from scipy.optimize import minimize
 # from numba import int32, float32
 # from typing import List
 
-from typing import Any
+from typing import Any, List
 from tqdm import tqdm
 from tslearn import generators
 

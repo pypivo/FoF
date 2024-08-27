@@ -128,19 +128,17 @@ class EquationsController:
         J_KB_plus = e_KB_plus*d.inv_beta_KB_ef*Heviside(T_a_t-180.0)
         # J_Glu_minus = d.k_BMR_Glu_ef*Glu_ef
         # J_AA_minus = d.k_BMR_AA_ef*AA_ef
-        J_FFA_minus = d.K_BMR_FFF_ef*FFA_ef
+        # J_FFA_minus = d.K_BMR_FFF_ef*FFA_ef
         # J_KB_minus = d.K_BMR_KB_ef*KB_ef
 
-        # J_Glu_minus = d.base_BMR_Glu_ef*Glu_ef
-        # J_AA_minus = d.base_BMR_AA_ef*AA_ef
-        # J_KB_minus = d.base_BMR_KB_ef*KB_ef
-
-        J_Glu_minus = d.base_BMR_Glu_ef
-        J_AA_minus = d.base_BMR_AA_ef
-        J_KB_minus = d.base_BMR_KB_ef
+        # J_Glu_minus = d.base_BMR_Glu_ef
+        # J_AA_minus = d.base_BMR_AA_ef
+        # J_KB_minus = d.base_BMR_KB_ef
         
 
-        bmr_AA_ef, bmr_Glu_ef, bmr_TG_pl = calculate_bmr(AA_ef, Glu_ef, TG_pl)
+        bmr_AA_ef, bmr_Glu_ef, bmr_FFA_ef, bmr_KB_ef = calculate_bmr(
+            INS, J_prot_flow, J_carb_flow
+        )
 
         CL_INS = d.CL_INS_base
         CL_GLN = d.CL_GLN_base
@@ -219,18 +217,13 @@ class EquationsController:
         H_28 = h_[28] * AA_h
         H_29 = h_[29] * AA_h
 
-        v = 0.001
-        # J_0 = j_[0] * TG_pl * (bmr_TG_pl + 1) * v * 10
-        # J_1 = j_[1] * Glu_ef * (J_Glu_minus + bmr_Glu_ef) * v
-        # J_2 = j_[2] * KB_ef * (J_KB_minus) * v
-        # J_3 = j_[3] * FFA_ef * (J_FFA_minus) * v
-        # J_4 = j_[4] * AA_ef * (J_AA_minus + bmr_AA_ef) * v
+        v = 1.0
 
-        J_0 = j_[0]  * (bmr_TG_pl + 1) * v
-        J_1 = j_[1]  * (J_Glu_minus + bmr_Glu_ef) * v
-        J_2 = j_[2]  * (J_KB_minus) * v
-        J_3 = j_[3]  * (J_FFA_minus) * v
-        J_4 = j_[4]  * (J_AA_minus + bmr_AA_ef) * v 
+        J_0 = j_[0]  * TG_pl
+        J_1 = j_[1]  * (bmr_Glu_ef) * v
+        J_2 = j_[2]  * (bmr_KB_ef) * v
+        J_3 = j_[3]  * (bmr_FFA_ef) * v
+        J_4 = j_[4]  * (bmr_AA_ef) * v
         
         # вычисление вектора F(t) в точке t
         # Adipocyte
@@ -288,14 +281,8 @@ class EquationsController:
         right_Urea_ef=    J_4 + (1.0/2.0)*A_17 + (1.0/2.0)*A_18 + (1.0/2.0)*A_19 + (1.0/2.0)*M_17 + (1.0/2.0)*M_18 + (1.0/2.0)*M_19 + (1.0/2.0)*H_27 + (1.0/2.0)*H_28 + (1.0/2.0)*H_29
         right_Cholesterol_pl= H_7
         
-        b = 0.0
-        if Glu_ef > 6.0:
-            b = 10.0
-        right_INS =  - INS * CL_INS  + 1.0 * J_carb_flow  +1.0 * J_fat_flow + 1.0 * J_prot_flow + b # +1.0 * Glu_ef * Heviside((Glu_ef-5.0)/14.0)
-        a = 0.0
-        if Glu_ef < 5.0:
-            a = 3.0
-        right_GLN = - CL_GLN * GLN  + a # d.lambda_ * (1.0/np.maximum(Glu_ef/14.0, 0.1)) # не химическая кинетика
+        right_INS =  - INS * CL_INS  + 1.0 * J_carb_flow  +1.0 * J_fat_flow + 1.0 * J_prot_flow  # + b # +1.0 * Glu_ef * Heviside((Glu_ef-5.0)/14.0)
+        right_GLN = - CL_GLN * GLN  + d.lambda_ * (1.0/max(Glu_ef/10.0, 0.1)) # не химическая кинетика
         right_CAM = d.sigma * HeartRate - CL_CAM * CAM
 
         buffer[0] = right_Muscle_m
