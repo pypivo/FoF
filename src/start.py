@@ -78,7 +78,7 @@ class CalculationModel:
         solutions[0,:] = solver.y
         i_=  1
         print("STARTED")
-        from time import time 
+        from time import time
         t1 = time()
         while solver.successful() and solver.t < t_end:
             solutions[i_,:] = solver.integrate(solver.t+tau_grid)
@@ -100,24 +100,6 @@ class CalculationModel:
         print(h_min,h_max)
 
         step_ = (h_max-h_min)/10
-
-        fig2 = init_figure(r'$t,min$',y_label=r'$$')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['Glu_ef']], r'Glu_ef')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['AA_ef']], r'AA_ef')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['FFA_ef']], r'FFA_ef')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['KB_ef']], r'KB_ef')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['TG_a']], r'TG_a')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['AA_a']], r'AA_a')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G6_a']], r'G6_a')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G3_a']], r'G3_a')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['GG_h']], r'GG_h')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G6_h']], r'G6_h')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G3_h']], r'G3_h')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['TG_h']], r'TG_h')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['GG_m']], r'GG_m')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G3_m']], r'G3_m')
-        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['TG_pl']], r'TG_pl')
-        fig2.show()
 
         fig = init_figure(x_label=r'$t,min$',y_label=r'$\frac{mmol}{L}$')
         fig = plot_solutions(fig, solutions, time_sol, name_by_index)
@@ -152,8 +134,95 @@ class CalculationModel:
                                                 'GLN_CAM': "#7FFF00",
                                                 'GLN_INS_CAM': "#87CEEB",
                                                 'fasting':"#04e022"})
+        
+        print('show fig1')
+
+
+        fig2 = init_figure(r'$t,min$',y_label=r'$$')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['Glu_ef']], r'Glu_ef')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['AA_ef']], r'AA_ef')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['FFA_ef']], r'FFA_ef')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['KB_ef']], r'KB_ef')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['TG_a']], r'TG_a')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['AA_a']], r'AA_a')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G6_a']], r'G6_a')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G3_a']], r'G3_a')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['GG_h']], r'GG_h')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G6_h']], r'G6_h')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G3_h']], r'G3_h')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['TG_h']], r'TG_h')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['GG_m']], r'GG_m')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G3_m']], r'G3_m')
+        add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['TG_pl']], r'TG_pl')
+        print('show fig2')
+
+
+        fig_a = init_figure(r'$t,min$',y_label=r'$$')
+        add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["TG_a"]], r"TG_a")
+        add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["AA_a"]], r"AA_a")
+        add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["G6_a"]], r"G6_a")
+        add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["G3_a"]], r"G3_a")
+        add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["Pyr_a"]], r"Pyr_a")
+        add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["Ac_CoA_a"]], r"Ac_CoA_a")
+        add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["FA_CoA_a"]], r"FA_CoA_a")
+        add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["Cit_a"]], r"Cit_a")
+        add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["OAA_a"]], r"OAA_a")
+        add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["NADPH_a"]], r"NADPH_a")
+        print('show fig_a')
+
+        fig_h = init_figure(r'$t,min$',y_label=r'$$')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['GG_h']], r'GG_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['G6_h']], r'G6_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['G3_h']], r'G3_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['TG_h']], r'TG_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['Pyr_h']], r'Pyr_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['MVA_h']], r'MVA_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['OAA_h']], r'OAA_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['Cit_h']], r'Cit_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['AA_h']], r'AA_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['NADPH_h']], r'NADPH_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['Ac_CoA_h']], r'Ac_CoA_h')
+        add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['FA_CoA_h']], r'FA_CoA_h')
+        print('show fig_h')
+
+        fig_m = init_figure(r'$t,min$',y_label=r'$$')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['Muscle_m']], r'Muscle_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['AA_m']], r'AA_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['GG_m']], r'GG_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['G6_m']], r'G6_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['G3_m']], r'G3_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['Pyr_m']], r'Pyr_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['Cit_m']], r'Cit_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['OAA_m']], r'OAA_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['CO2_m']], r'CO2_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['H2O_m']], r'H2O_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['H_cyt_m']], r'H_cyt_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['H_mit_m']], r'H_mit_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['Ac_CoA_m']], r'Ac_CoA_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['FA_CoA_m']], r'FA_CoA_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['ATP_cyt_m']], r'ATP_cyt_m')
+        add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['ATP_mit_m']], r'ATP_mit_m')
+        print('show fig_m')
+
+
+        fig_ef = init_figure(r'$t,min$',y_label=r'$$')
+        add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['Urea_ef']], r'Urea_ef')
+        add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['Glu_ef']], r'Glu_ef')
+        add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['AA_ef']], r'AA_ef')
+        add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['FFA_ef']], r'FFA_ef')
+        add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['KB_ef']], r'KB_ef')
+        add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['Glycerol_ef']], r'Glycerol_ef')
+        add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['Lac_m']], r'Lac_m')
+        add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['TG_pl']], r'TG_pl')
+        add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['Cholesterol_pl']], r'Cholesterol_pl')
+        print('show fig_ef')
 
         fig.show()
+        fig2.show()
+        fig_a.show()
+        fig_h.show()
+        fig_m.show()
+        fig_ef.show()
         return fig, fig2
     
 CM = CalculationModel()

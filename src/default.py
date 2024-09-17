@@ -75,13 +75,20 @@ beta_TG_a = 7246.8/1000.0 # [kcal/mmol]
 beta_GG_h = 699.0/1000.0 # [kcal/mmol]
 
 
-base_BMR_Glu_ef_rate = 2 * 10**(-2)  # 20% из 0.1 [kcal/0.1min (6 sec)]
-base_BMR_AA_ef_rate = 10**(-2)
-base_BMR_KB_ef_rate = 0.35 * 10**(-2) 
+BMR_PER_DAY = 2000 # [kcal/day] 70 kg
+BMR_ON_GRID = BMR_PER_DAY / (24 * 60) * tau_grid  # [kcal/grid step]
 
-base_BMR_Glu_ef = base_BMR_Glu_ef_rate * 1/beta_Glu_ef
-base_BMR_AA_ef = base_BMR_AA_ef_rate * 1/beta_AA_ef
-base_BMR_KB_ef = base_BMR_KB_ef_rate * 1/beta_KB_ef
+BASE_AA_BMR = 0.1  # 10 %
+BASE_AA_BMR_VALUE = BASE_AA_BMR * BMR_ON_GRID * 1/beta_AA_ef
+
+BASE_GLU_BMR = 0.2  # 20 %
+BASE_GLU_BMR_VALUE = BASE_GLU_BMR * BMR_ON_GRID * 1/beta_Glu_ef
+
+BASE_KB_BMR = 0.035  # 3.5 %
+BASE_KB_BMR_VALUE = BASE_KB_BMR * BMR_ON_GRID * 1/beta_KB_ef
+
+
+
 
 Glu_ef_start= E_day/beta_Glu_ef/4
 AA_ef_start = E_day/beta_AA_ef/4
@@ -108,7 +115,7 @@ start_point_dict = {
     "ATP_mit_m": 10.0,
 
     # Adipocyte
-    "TG_a": 10.0,
+    "TG_a": 1000.0,
     "AA_a": 10.0,
     "G6_a": 10.0,
     "G3_a": 10.0,
@@ -138,8 +145,8 @@ start_point_dict = {
     "Glu_ef": 5,
     "AA_ef": 5,
     "FFA_ef": 5, 
-    "KB_ef": 5,
-    "Glycerol_ef": 10.0,
+    "KB_ef": 0,
+    "Glycerol_ef": 0,
     "Lac_m": 10.0,
     "TG_pl": 10.0,
     "Cholesterol_pl": 10.0,    
@@ -177,7 +184,7 @@ default_coefficients = {
     # Adipocyte
     "a_1": None,
     "a_2": None,
-    "a_3": 10**(-7),
+    "a_3": 7 * 10**(-4),
     "a_4": None,
     "a_5": None,
     "a_6": None,
@@ -197,12 +204,12 @@ default_coefficients = {
 
     # Hepatocyte
     "h_1": None,
-    "h_2": 10**(-1),
+    "h_2": 10**(-3),
     "h_3": None,
     "h_4": None,
     "h_5": None,
     "h_6": None,
-    "h_7": None,
+    "h_7": 10**(-4),
     "h_8": None,
     "h_9": None,
     "h_10": None,
@@ -212,7 +219,7 @@ default_coefficients = {
     "h_14": None,
     "h_15": None,
     "h_16": None,
-    "h_17": None,
+    "h_17": 10**(-4),
     "h_18": None,
     "h_19": None,
     "h_20": None,
@@ -236,7 +243,7 @@ default_coefficients = {
 }
 
 value_of_coeff = 1.0
-j_base = 5 * 10**(-1)
+j_base = 1.0
 
 def make_default_coefficients() -> dict:
 
@@ -244,9 +251,7 @@ def make_default_coefficients() -> dict:
     for name in default_coefficients:
         if default_coefficients[name] is not None:
             coefficients[name] = default_coefficients[name]
-            continue
-
-        if "j" in name:
+        elif "j" in name:
             coefficients[name] = j_base
         else:
             coefficients[name] = value_of_coeff
