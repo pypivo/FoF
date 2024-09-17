@@ -8,3 +8,5 @@ touch src/local_contributor_config.py
 project_path = '.../src'
 problem_folder = '.../input_data'
 ```
+
+Прога запускается через start.py
