@@ -10,3 +10,5 @@ problem_folder = '.../input_data'
 ```
 
 Прога запускается через start.py
+
+Последние изменения по проге в ветке **interesting-glu-and-glycer**
