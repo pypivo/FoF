@@ -145,7 +145,7 @@ start_point_dict = {
     "Glu_ef": 5,
     "AA_ef": 5,
     "FFA_ef": 5, 
-    "KB_ef": 0,
+    "KB_ef": 1,
     "Glycerol_ef": 0,
     "Lac_m": 10.0,
     "TG_pl": 10.0,
@@ -234,7 +234,7 @@ default_coefficients = {
     "h_29": None,
 
     # BMR
-    "j_0": None,
+    "j_0": 1.0,
     "j_1": 2  * 10**(-1),
     "j_2": None,
     "j_3": None,
@@ -242,8 +242,12 @@ default_coefficients = {
 
 }
 
-value_of_coeff = 1.0
-j_base = 1.0
+for d in default_coefficients:
+    if default_coefficients[d] is None:
+        default_coefficients[d] = 1.0
+
+value_of_coeff = 10**(-1)
+j_base = 1.0 * 10**(-2)
 
 def make_default_coefficients() -> dict:
 

@@ -147,7 +147,7 @@ def update_insulin_coefficients(
     m_[9] = m_base[9] * insulin_regulation
     m_[11] = m_base[11] * insulin_regulation
 
-    # a_[2] = a_base[2] * insulin_regulation
+    a_[2] = a_base[2] * insulin_regulation
     a_[4] = a_base[4] * insulin_regulation
     a_[5] = a_base[5] * insulin_regulation
     a_[7] = a_base[7] * insulin_regulation
@@ -158,6 +158,7 @@ def update_insulin_coefficients(
 
     h_[3] = h_base[3] * insulin_regulation
     h_[7] = h_base[7] * insulin_regulation
+    h_[9] = h_base[9] * insulin_regulation + h_base[9] / 10
     h_[10] = h_base[10] * insulin_regulation
     h_[12] = h_base[12] * insulin_regulation
     h_[16] = h_base[16] * insulin_regulation
@@ -167,7 +168,7 @@ def update_insulin_coefficients(
     h_[24] = h_base[24] * insulin_regulation
     h_[26] = h_base[26] * insulin_regulation
 
-    # j_[0] = j_base[0] * insulin_regulation
+    j_[0] = j_base[0] * insulin_regulation
 
 
 @jit(nopython = True)            

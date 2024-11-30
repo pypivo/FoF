@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.integrate import ode
 
+from coefficients.get_coefficients_from_xlsx import read_coefficients_row_from_xlsx
 from input import *
 from Plotting.myplt import *
 from myo_supportfs import *
@@ -10,7 +11,11 @@ from default import *
 
 
 def make_equations_and_coefficient_controllers():
-    coefficients = make_default_coefficients()
+    coefficients = read_coefficients_row_from_xlsx(
+        file_path='src/coefficients/coefficients.xlsx',
+    )
+    if coefficients is None:
+        coefficients = make_default_coefficients()
     coefficient_controller = CoefficientsController(coefficients)
     equations_controller = EquationsController(coefficient_controller)
     return coefficient_controller, equations_controller
@@ -56,6 +61,9 @@ class CalculationModel:
         last_time_pos = np.zeros(shape=(1,),dtype=np.intc)
         last_time_pos[0] = 0
 
+        BMR_INDEX = 3
+        bmr_buffer = np.zeros(shape=(BMR_INDEX, ),dtype=np.float32)
+        buffer = np.zeros(shape=(50, ),dtype=np.float32)
 
         def F_wrapped(t, y):
             return self.equations_controller.calculate_equations(
@@ -68,26 +76,41 @@ class CalculationModel:
                 adipocyte_coefficients_base=self.coefficient_controller.adipocyte_coefficients_base,
                 hepatocyte_coefficients_base=self.coefficient_controller.hepatocyte_coefficients_base,
                 fluid_coefficients_base=self.coefficient_controller.fluid_coefficients_base,
+
+                buffer=buffer,
+                bmr_buffer=bmr_buffer,
             )
 
         solver = ode(f=F_wrapped)
         solver.set_initial_value(y=start_point,t=t_0)
         solver_type = 'vode'
         solver.set_integrator(solver_type, atol=1e-6, rtol=1e-4) 
+
         solutions = np.zeros(shape=(len(time_grid),len(start_point)),dtype=np.float32)
+        bmr_values = np.zeros(shape=(len(time_grid),BMR_INDEX),dtype=np.float32)
+
         solutions[0,:] = solver.y
         i_=  1
         print("STARTED")
         from time import time
         t1 = time()
-        while solver.successful() and solver.t < t_end:
-            solutions[i_,:] = solver.integrate(solver.t+tau_grid)
-            i_ += 1
-            if i_ % 20000 == 0:
-                print(i_/432001)
+        from tqdm import tqdm
+        max_value = 432001
+        with tqdm(total=max_value, desc="Выполнение подсчета модели") as pbar:            
+            while solver.successful() and solver.t < t_end:
+                solutions[i_,:] = solver.integrate(solver.t+tau_grid)
+                bmr_values[i_,:] = bmr_buffer
+                i_ += 1
+                if i_ % 20000 == 0:
+                    pbar.update(20000)  # Обновляем прогресс-бар
+
+            pbar.n = max_value  # Устанавливаем текущее значение на максимум
+            pbar.last_print_n = max_value  # Обновляем вывод прогресс-бара
+            pbar.update(0)  # Обновляем прогресс-бар на экране            
         
         print("\n\n\n", "Время выполнения с j, функциями:", time() - t1,"\n\n\n")
         print('last solver time step {} target last step {}'.format(i_, len(time_grid)-1))
+
         time_sol = time_grid
 
         print(solutions.shape)
@@ -134,8 +157,6 @@ class CalculationModel:
                                                 'GLN_CAM': "#7FFF00",
                                                 'GLN_INS_CAM': "#87CEEB",
                                                 'fasting':"#04e022"})
-        
-        print('show fig1')
 
 
         fig2 = init_figure(r'$t,min$',y_label=r'$$')
@@ -154,8 +175,6 @@ class CalculationModel:
         add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['GG_m']], r'GG_m')
         add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['G3_m']], r'G3_m')
         add_line_to_fig(fig2, time_sol, solutions[:,index_by_name['TG_pl']], r'TG_pl')
-        print('show fig2')
-
 
         fig_a = init_figure(r'$t,min$',y_label=r'$$')
         add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["TG_a"]], r"TG_a")
@@ -168,7 +187,6 @@ class CalculationModel:
         add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["Cit_a"]], r"Cit_a")
         add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["OAA_a"]], r"OAA_a")
         add_line_to_fig(fig_a, time_sol, solutions[:,index_by_name["NADPH_a"]], r"NADPH_a")
-        print('show fig_a')
 
         fig_h = init_figure(r'$t,min$',y_label=r'$$')
         add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['GG_h']], r'GG_h')
@@ -183,7 +201,6 @@ class CalculationModel:
         add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['NADPH_h']], r'NADPH_h')
         add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['Ac_CoA_h']], r'Ac_CoA_h')
         add_line_to_fig(fig_h, time_sol, solutions[:,index_by_name['FA_CoA_h']], r'FA_CoA_h')
-        print('show fig_h')
 
         fig_m = init_figure(r'$t,min$',y_label=r'$$')
         add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['Muscle_m']], r'Muscle_m')
@@ -202,8 +219,6 @@ class CalculationModel:
         add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['FA_CoA_m']], r'FA_CoA_m')
         add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['ATP_cyt_m']], r'ATP_cyt_m')
         add_line_to_fig(fig_m, time_sol, solutions[:,index_by_name['ATP_mit_m']], r'ATP_mit_m')
-        print('show fig_m')
-
 
         fig_ef = init_figure(r'$t,min$',y_label=r'$$')
         add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['Urea_ef']], r'Urea_ef')
@@ -215,14 +230,36 @@ class CalculationModel:
         add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['Lac_m']], r'Lac_m')
         add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['TG_pl']], r'TG_pl')
         add_line_to_fig(fig_ef, time_sol, solutions[:,index_by_name['Cholesterol_pl']], r'Cholesterol_pl')
-        print('show fig_ef')
+
+
+        fig_bmr = init_figure(r'$t,min$',y_label=r'$$')
+        total_bmr = bmr_values[:,0] + bmr_values[:,1] + bmr_values[:,2]
+        add_bmr_to_fig(fig_bmr, time_sol, bmr_values[:,0], r'bmr_AA_ef', fill='tozeroy')
+        add_bmr_to_fig(fig_bmr, time_sol, bmr_values[:,0] + bmr_values[:,1], r'bmr_Glu_ef', fill='tonexty')
+        add_bmr_to_fig(fig_bmr, time_sol, total_bmr, r'bmr_FFA_ef', fill='tonexty')
+
+        fig_bmr_2 = init_figure(r'$t,min$',y_label=r'$$')
+        add_line_to_fig(fig_bmr_2, time_sol, bmr_values[:,0], r'bmr_AA_ef')
+        add_line_to_fig(fig_bmr_2, time_sol, bmr_values[:,1], r'bmr_Glu_ef')
+        add_line_to_fig(fig_bmr_2, time_sol, bmr_values[:,2], r'bmr_FFA_ef')
 
         fig.show()
-        fig2.show()
-        fig_a.show()
-        fig_h.show()
-        fig_m.show()
-        fig_ef.show()
+        print('show fig1')
+        # fig_bmr.show()
+        # print('show fig_bmr')
+        # fig_bmr_2.show()
+        # print('show fig_bmr_2')
+        # fig2.show()
+        # print('show fig2')
+        # fig_a.show()
+        # print('show fig_a')
+        # fig_h.show()
+        # print('show fig_h')
+        # fig_m.show()
+        # print('show fig_h')
+        # fig_ef.show()
+        # print('show fig_ef')
+
         return fig, fig2
     
 CM = CalculationModel()

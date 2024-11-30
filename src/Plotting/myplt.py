@@ -142,13 +142,32 @@ def add_line_to_fig(fig, time_grid, y: np.array, line_name, line_style=None):
     number_of_points = y.shape[0]
     target_number_of_points = min(1000, number_of_points)
     step_ = int(number_of_points / target_number_of_points)
-    fig.add_trace(go.Scatter(x=time_grid[::step_],
-                             y=y[::step_],
-                             name='$' + line_name + '$',
-                             fill=None,
-                             line=dict(width=4, dash=line_style)
-                             )
-                  )
+    fig.add_trace(go.Scatter(
+        x=time_grid[::step_],
+        y=y[::step_],
+        name='$' + line_name + '$',
+        fill=None,
+        line=dict(width=4, dash=line_style)
+        )
+    )
+
+
+def add_bmr_to_fig(fig, time_grid, y: np.array, line_name, fill='tonexty'):
+    number_of_points = y.shape[0]
+    target_number_of_points = min(1000, number_of_points)
+    step_ = int(number_of_points / target_number_of_points)
+    fig.add_trace(
+        go.Scatter(
+            x=time_grid[::step_],
+            y=y[::step_],
+            name='$' + line_name + '$',
+            fill=fill,
+            # line=dict(width=4, dash=line_style),
+            mode='lines',
+            line=dict(width=0)
+        )
+    )
+    
 
 def save_fig_to_html(fig, path, filename):
 

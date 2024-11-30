@@ -34,7 +34,10 @@ class EquationsController:
         adipocyte_coefficients_base,
         hepatocyte_coefficients_base,
         fluid_coefficients_base,
-    ) -> dict[str, float]:
+
+        buffer,
+        bmr_buffer,
+    ) -> list[float]:
         """
         расчет изменений веществ на момент времени t
         """
@@ -47,7 +50,7 @@ class EquationsController:
         )
 
 
-        buffer = np.zeros(shape=(50, ),dtype=np.float32)
+        # buffer = np.zeros(shape=(50, ),dtype=np.float32)
         time_index_i = np.intc((t-d.t_0_input)/d.tau_grid_input)
         J_carb_flow = J_flow_carb_vs[time_index_i]
         J_prot_flow = J_flow_prot_vs[time_index_i]
@@ -118,23 +121,18 @@ class EquationsController:
         CAM = y_vec[49]               
 
         # AUC 
-        T_a_t = calculate_T_a_t(
+        time_without_INS = calculate_T_a_t(
             t, INS_on_grid, INS_AUC_w_on_grid, T_a_on_grid,
             last_seen_time,last_time_pos, INS,
         )
 
         # BMR
-        e_KB_plus = 0.005*d.e_sigma*Heviside(T_a_t-180.0)
-        J_KB_plus = e_KB_plus*d.inv_beta_KB_ef*Heviside(T_a_t-180.0)
-        # J_Glu_minus = d.k_BMR_Glu_ef*Glu_ef
-        # J_AA_minus = d.k_BMR_AA_ef*AA_ef
-        # J_FFA_minus = d.K_BMR_FFF_ef*FFA_ef
-        # J_KB_minus = d.K_BMR_KB_ef*KB_ef
-
-        # J_Glu_minus = d.base_BMR_Glu_ef
-        # J_AA_minus = d.base_BMR_AA_ef
-        # J_KB_minus = d.base_BMR_KB_ef
-        
+        e_KB_plus = 0.005*d.e_sigma*Heviside(time_without_INS-180.0)
+        # J_KB_plus = e_KB_plus*d.inv_beta_KB_ef  #  Heviside(T_a_t-180.0)
+        J_KB_plus = (
+            d.BASE_KB_BMR_VALUE
+            + Heviside(time_without_INS-180.0) * (0.25 * time_without_INS / 60.0) * d.BMR_ON_GRID * 1/d.beta_KB_ef
+        )
 
         bmr_AA_ef, bmr_Glu_ef, bmr_FFA_ef, bmr_KB_ef = calculate_bmr(
             INS, J_prot_flow, J_carb_flow
@@ -226,8 +224,16 @@ class EquationsController:
         J_4 = j_[4]  * (bmr_AA_ef) * v
         
         # вычисление вектора F(t) в точке t
+        # Кетоновые тела
+        base_KB_ef_grow = d.BASE_KB_BMR_VALUE
+        right_KB_ef = J_KB_plus - J_2 + H_6  - M_3
+        # if KB_ef > base_KB_ef_grow:
+        #     right_KB_ef += H_6  - M_3
+        # else:
+        #     H_6, M_3 = 0, 0
+
         # Adipocyte
-        right_TG_a =2.0*A_7 - A_3
+        right_TG_a =2.0*A_7 - A_3 - bmr_FFA_ef
         right_AA_a =A_1 - A_17 - A_18 - A_19 
         right_G6_a =A_4 - A_5 - A_6
         right_G3_a =A_5 + (1.0/2.0)*A_6 + A_9 - A_7 - A_8
@@ -270,9 +276,8 @@ class EquationsController:
         right_ATP_mit_m =    (1.0/2.0)*M_16 
         right_Lac_m=  2.0*M_2 - H_5
         right_Muscle_m = M_20 - M_21
-        
+
         # Fluid
-        right_KB_ef =  + J_KB_plus - M_3 - J_2 + H_6
         right_Glu_ef = J_carb_flow + H_2 - M_1 - A_4 - H_3 - J_1
         right_AA_ef =  J_prot_flow + M_6 - M_5 - A_1 - H_1 - J_4
         right_TG_pl =  J_fat_flow + H_9 - J_0
@@ -339,6 +344,10 @@ class EquationsController:
         buffer[47] = right_INS
         buffer[48] = right_GLN
         buffer[49] = right_CAM
+
+        bmr_buffer[0] = bmr_AA_ef
+        bmr_buffer[1] = bmr_Glu_ef
+        bmr_buffer[2] = bmr_FFA_ef
 
         return buffer
 
