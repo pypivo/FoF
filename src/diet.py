@@ -10,8 +10,7 @@ t_end = 6000.0 # [min]
 
 
 # make input data
-
-diet_table_path = '/Users/hicebook/fof/fof2/FoF/input_data/diet_Mikhail.xlsx'
+diet_table_path = input("Введите название xlsx файла с диетой из папки input_data: ")
 
 # считать начальлные данные по диете
 diet_data = read_diet(diet_table_path)

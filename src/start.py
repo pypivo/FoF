@@ -11,10 +11,13 @@ from default import *
 
 
 def make_equations_and_coefficient_controllers():
-    coefficients = read_coefficients_row_from_xlsx(
-        file_path='src/coefficients/coefficients.xlsx',
-    )
-    if coefficients is None:
+    is_excel_flow = input("Вы хотите использовать коэффициенты из xlsx-файла? (y/n): ")
+    if is_excel_flow == "y":
+        coefficients = read_coefficients_row_from_xlsx(
+            file_path='src/coefficients/coefficients.xlsx',
+        )
+    else:
+        print("Использую дефолтные коэффициенты")
         coefficients = make_default_coefficients()
     coefficient_controller = CoefficientsController(coefficients)
     equations_controller = EquationsController(coefficient_controller)
@@ -40,7 +43,7 @@ class CalculationModel:
 
     def calculate(self):
         """
-        основная функция, которая запускает всве процессы по расчету уравнений, коэффициентов и построению графиков
+        основная функция, которая запускает все процессы по расчету уравнений, коэффициентов и построению графиков
         """
 
         index_by_name, name_by_index, start_point = get_start_point_names_mapping(self.start_point_dict)
@@ -233,9 +236,19 @@ class CalculationModel:
 
 
         fig_bmr = init_figure(r'$t,min$',y_label=r'$$')
-        total_bmr = bmr_values[:,0] + bmr_values[:,1] + bmr_values[:,2]
-        add_bmr_to_fig(fig_bmr, time_sol, bmr_values[:,0], r'bmr_AA_ef', fill='tozeroy')
-        add_bmr_to_fig(fig_bmr, time_sol, bmr_values[:,0] + bmr_values[:,1], r'bmr_Glu_ef', fill='tonexty')
+        total_bmr = (bmr_values[:,0] * beta_AA_ef + bmr_values[:,1] * beta_Glu_ef + bmr_values[:,2] * beta_FFA_ef)/BMR_ON_GRID
+        add_bmr_to_fig(
+            fig_bmr,
+            time_sol,
+            bmr_values[:,0] * beta_AA_ef / BMR_ON_GRID,
+            r'bmr_AA_ef', fill='tozeroy'
+        )
+        add_bmr_to_fig(
+            fig_bmr,
+            time_sol,
+            (bmr_values[:,0] * beta_AA_ef + bmr_values[:,1]  * beta_Glu_ef) / BMR_ON_GRID,
+            r'bmr_Glu_ef', fill='tonexty'
+        )
         add_bmr_to_fig(fig_bmr, time_sol, total_bmr, r'bmr_FFA_ef', fill='tonexty')
 
         fig_bmr_2 = init_figure(r'$t,min$',y_label=r'$$')
@@ -245,10 +258,10 @@ class CalculationModel:
 
         fig.show()
         print('show fig1')
-        # fig_bmr.show()
-        # print('show fig_bmr')
-        # fig_bmr_2.show()
-        # print('show fig_bmr_2')
+        fig_bmr.show()
+        print('show fig_bmr')
+        fig_bmr_2.show()
+        print('show fig_bmr_2')
         # fig2.show()
         # print('show fig2')
         # fig_a.show()

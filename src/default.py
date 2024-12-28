@@ -39,7 +39,7 @@ INS_check_coeff = 400 # [mmol*s]
 tau_grid = 0.01 # [min]
 t_0 = 400.0 # [min]
 
-t_end = 400.0+1440.0*3 # [min]
+t_end = 400.0+1440.0*4 # [min]
 N = int((t_end-t_0)/tau_grid)+1
 time_grid = np.linspace(start=t_0, stop=t_end, num=N)
 

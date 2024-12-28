@@ -191,6 +191,7 @@ class J_sum_with_infinit_v:
     def add_J_ch(self, t1:float, t2:float, delta_t:float, tau:float, T:float,rho:float,alpha:float, volume:float):
         J_ = J_ch(t1,t2,delta_t,tau,T,rho,alpha,volume)
         self.J_arr.append(J_)
+
     def get_dJdt(self,t:float)->float:
         s_ = 0.0
         for i in range(len(self.J_arr)):

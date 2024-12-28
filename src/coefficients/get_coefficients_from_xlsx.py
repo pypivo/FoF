@@ -16,7 +16,7 @@ def read_coefficients_row_from_xlsx(file_path):
         sheet = workbook.active
 
         headers = [cell.value for cell in sheet[1]]
-        row = [cell.value for cell in sheet[row_number]]
+        row = [cell.value for cell in sheet[row_number + 1]]
 
         result = {header: float(value) for header, value in zip(headers, row) if isinstance(value, (int, float))}
         return result

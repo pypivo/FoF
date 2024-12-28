@@ -162,6 +162,7 @@ def add_bmr_to_fig(fig, time_grid, y: np.array, line_name, fill='tonexty'):
             y=y[::step_],
             name='$' + line_name + '$',
             fill=fill,
+            hoveron='fills+points',
             # line=dict(width=4, dash=line_style),
             mode='lines',
             line=dict(width=0)

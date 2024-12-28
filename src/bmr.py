@@ -8,7 +8,7 @@ def calculate_bmr(
     INS,
     J_prot_flow, J_carb_flow,
 ):
-    need_to_fill_bmr = (1 - d.BASE_AA_BMR - d.BASE_GLU_BMR) * d.BMR_ON_GRID
+    need_to_fill_bmr = (1 - d.BASE_AA_BMR - d.BASE_GLU_BMR - d.BASE_KB_BMR_VALUE) * d.BMR_ON_GRID
 
     bmr_AA_ef = d.BASE_AA_BMR_VALUE
     bmr_Glu_ef = d.BASE_GLU_BMR_VALUE
